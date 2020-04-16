@@ -1,0 +1,18 @@
+---
+
+- name:
+  package:
+    name: 
+      - python3-pip
+    update_cache: yes
+    state: present
+  become: yes
+  tags: ["common_packages"]
+
+- name: Install required pip packages
+  pip:
+    name:
+      - docker
+      - docker-compose
+  become: yes
+  tags: ["common_packages"]

@@ -1,0 +1,10 @@
+- name: Run Application Playbook
+  hosts: [tag_stage_staging]
+  roles:
+    - { role: common, tags: ["common"] }
+    - { role: geerlingguy.docker, tags: ["docker"] }
+
+- name:  Install application
+  hosts: tag_stage_staging:&tag_component_application
+  roles:
+    - { role: application, tags: ['application'] }

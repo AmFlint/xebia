@@ -1,0 +1,14 @@
+
+application_docker_image: amasselot/xebia
+application_docker_tag: latest
+
+application_user: ubuntu
+application_group: ubuntu
+application_directory: "/home/{{ application_user }}"
+
+application_docker_private: false
+application_docker_username: ""
+application_docker_password: ""
+application_docker_registry: ""
+
+application_port: 80

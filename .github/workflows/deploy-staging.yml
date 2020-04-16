@@ -1,0 +1,62 @@
+name: Deploy to staging
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build Docker Image
+      run: docker build -t "$REGISTRY_IMAGE:${GITHUB_SHA:0:4}" .
+      env:
+        REGISTRY_IMAGE: amasselot/xebia
+
+    - name: Login to Docker Registry
+      run: echo "$REGISTRY_PASSWORD" | docker login --username $REGISTRY_USERNAME --password-stdin $REGISTRY_ENDPOINT
+      env:
+        # Update REGISTRY_ENDPOINT if you are targetting a specific registry
+        # Here I'm using default Docker Hub
+        REGISTRY_ENDPOINT: ""
+        REGISTRY_USERNAME: amasselot
+        REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Push docker image
+      run: docker push "$REGISTRY_IMAGE:${GITHUB_SHA:0:4}"
+      env:
+        REGISTRY_IMAGE: amasselot/xebia
+
+    - name: Install ansible
+      run: |
+        sudo apt update
+        sudo apt install software-properties-common
+        sudo apt-add-repository --yes --update ppa:ansible/ansible
+        sudo apt install ansible
+    
+    - name: Install PIP dependencies
+      run: pip install -r automation/ansible/requirements.txt
+
+    - name: Run Ansible Playbook redeploy client
+      run: |
+        mkdir -p ~/.ssh
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+        cd automation/ansible
+        ansible-playbook \
+          -i inventory/ec2.py \
+          staging.yml \
+          --limit tag_component_application \
+          --tags application_deploy \
+          --user ubuntu \
+          -e "application_docker_tag=${GITHUB_SHA:0:4}" \
+          -e "application_docker_image=$REGISTRY_IMAGE"
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        REGISTRY_IMAGE: amasselot/xebia
+        ANSIBLE_CFG: ./ansible.cfg
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

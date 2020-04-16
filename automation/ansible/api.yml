@@ -1,0 +1,6 @@
+---
+
+- name:  Install API
+  hosts: [tag_component_api]
+  roles:
+    - { role: api, tags: ['api'] }

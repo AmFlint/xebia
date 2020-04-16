@@ -1,0 +1,37 @@
+---
+
+- name: Create Directory for api
+  file:
+    state: directory
+    path: "{{ application_directory }}"
+    owner: "{{ application_user }}"
+    group: "{{ application_group }}"
+  tags: ["application_setup"]
+
+- name: Login to docker-Registry (if configured)
+  docker_login:
+    username: "{{ application_docker_username }}"
+    password: "{{ application_docker_password }}"
+    registry: "{{ application_docker_registry }}"
+  when: application_docker_private|bool
+  tags: ["application_deploy"]
+
+- name: Copy Docker-compose manifest
+  template:
+    src: templates/docker-compose.yml.j2
+    dest: "{{ application_directory }}/docker-compose.yml"
+  notify: restart docker-compose for project
+  tags: ["application_deploy"]
+
+- name: Run Docker-Compose for project
+  docker_compose:
+    project_src: "{{ application_directory }}"
+    state: present
+  tags: ["application_deploy"]
+
+- name: Logout From Docker Private registry
+  docker_login:
+    registry: "{{ application_docker_registry }}"
+    state: absent
+  when: application_docker_private|bool
+  tags: ["application_deploy"]

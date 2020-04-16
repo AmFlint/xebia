@@ -1,0 +1,31 @@
+version: '3'
+services:
+  redis-test:
+    image: redis
+    networks:
+      - click
+
+  web:
+    image: tomcat:jdk8-openjdk
+    environment:
+      REDIS_HOST: redis-test
+      REDIS_PORT: 6379
+    volumes:
+      - ./target:/usr/local/tomcat/webapps
+    ports:
+      - 80:8080
+    networks:
+      - click
+
+  application:
+    image: amasselot/xebia
+    environment:
+      REDIS_HOST: redis-test
+      REDIS_PORT: 6379
+    ports:
+      - 81:8080
+    networks:
+      - click
+
+networks:
+  click:

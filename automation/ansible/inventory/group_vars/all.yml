@@ -1,0 +1,5 @@
+# Configure docker group for user ubuntu to run docker commands (Permissions)
+docker_users:
+  - ubuntu
+
+docker_install_compose: true

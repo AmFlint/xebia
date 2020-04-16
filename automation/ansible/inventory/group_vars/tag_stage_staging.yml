@@ -1,0 +1,4 @@
+application_redis_host: staging-api-redis.lkq1nk.0001.euw2.cache.amazonaws.com
+application_redis_port: 6379
+
+application_docker_tag: latest
