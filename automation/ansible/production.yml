@@ -2,7 +2,7 @@
   hosts: [tag_stage_production]
   roles:
     - { role: common, tags: ["common"] }
-    - { role: geerlingguy.docker, tags: ["docker"] }
+    - { role: ansible-role-docker, tags: ["docker"] }
 
 - name:  Install application
   hosts: tag_stage_production:&tag_component_application

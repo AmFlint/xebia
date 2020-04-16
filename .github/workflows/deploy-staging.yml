@@ -36,7 +36,13 @@ jobs:
         sudo apt install software-properties-common
         sudo apt-add-repository --yes --update ppa:ansible/ansible
         sudo apt install ansible
-    
+
+    - name: Install imported roles Ansible Galaxy
+      run: |
+        ansible-galaxy install \
+        -r automation/ansible/roles/requirements.yml \
+        --roles-path automation/ansible/roles
+      
     - name: Install PIP dependencies
       run: pip install -r automation/ansible/requirements.txt
 

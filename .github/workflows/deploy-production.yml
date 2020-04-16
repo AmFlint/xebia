@@ -40,6 +40,12 @@ jobs:
     - name: Install PIP dependencies
       run: pip install -r automation/ansible/requirements.txt
 
+    - name: Install imported roles Ansible Galaxy
+      run: |
+        ansible-galaxy install \
+        -r automation/ansible/roles/requirements.yml \
+        --roles-path automation/ansible/roles
+
     - name: Run Ansible Playbook redeploy client
       run: |
         mkdir -p ~/.ssh
