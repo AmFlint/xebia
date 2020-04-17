@@ -26,8 +26,10 @@ This application is deployed on Amazon Web Services with Terraform.
 
 Our application is composed of the following stack:
 - Back-End Instances running our application (with Tomcat inside a Docker container)
+- A Security Group for Back-end instances allowing ingress: port 22 (SSH) and 80 (HTTP) to everyone. In the futur, we will restrain the CIDR_BLOCK allowed to access SSH.
 - an Elastic Load Balancer, balancing the incoming traffic to the backend instances
 - An ElastiCache Redis Cluster, to store our application's data
+- A Security Group for the ElastiCache Cluster, to only allow ingress on port 6379 (redis) to Back-end instances.
 
 In order to make it easy to reuse the same terraform code to deploy our stack in multiple stages, I wrote a [Terraform module](./automatoin/terraform/application) in charge of deploying the whole stack based on given variables (number of instances for the back-end service, machines types, cache types for redis, stage in which we want to deploy).
 
@@ -69,6 +71,14 @@ We're using two different playbooks, [staging.yml](./automation/ansible/staging.
 To make it easy to scale our infrastructure, we're using `AWS Dynamic Inventories for Ansible`, which automatically generates the hosts inventory by querying AWS EC2's APIs, so make sure you have credentials for an AWS User with EC2 Reading permissions (you may use the IAM credentials generated previously and used for Terraform).
 
 To run this playbook:
+- Install PIP dependencies (BOTO, necessary to query AWS EC2 APIs):
+  ```bash
+  pip install -r automation/ansible/requirements.txt
+  ```
+- Install Ansible-galaxy dependencies (Docker role):
+  ```bash
+  ansible-galaxy install -r automation/ansible/roles/requirements.yml --roles-path automation/ansible/.imported-roles
+  ```
 - Make sure your AWS credentials are exported:
   ```bash
   export AWS_ACCESS_KEY_ID=<your-access-key>
