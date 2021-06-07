@@ -20,7 +20,7 @@
         <jersey.version>2.21</jersey.version>
         <redisson.version>2.1.2</redisson.version>
         <slf4j.version>1.7.2</slf4j.version>
-        <logback.version>1.0.7</logback.version>
+        <logback.version>1.2.0</logback.version>
     </properties>
 
     <dependencyManagement>
